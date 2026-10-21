@@ -198,6 +198,34 @@ tbody tr:last-child td { border-bottom: 0; }
 .sources { font-size: 14px; color: var(--muted); display: grid; gap: 6px; max-width: 72ch; }
 .sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
+/* Questions */
+.faq-tools { display: grid; gap: 14px; }
+.faq-search { max-width: 520px; }
+.faq-groups { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.faq-groups button { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 5px 13px; font-size: 14px; cursor: pointer; color: var(--muted); transition: border-color .2s, color .2s; }
+.faq-groups button:hover { color: var(--ink); }
+.faq-groups button[aria-pressed="true"] { border-color: var(--gold); color: var(--ink); background: color-mix(in srgb, var(--gold) 12%, var(--bg)); }
+.faq-group { display: grid; }
+.faq-group + .faq-group { margin-top: 28px; }
+.faq-group > h3 { font-size: 13.5px; font-weight: 600; color: var(--gold-ink); letter-spacing: .02em; padding-bottom: 8px; border-bottom: 2px solid var(--gold); }
+details.q { border-bottom: 1px solid var(--line); }
+details.q summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; padding-block: 16px; font-weight: 500; font-size: 16.5px; }
+details.q summary::-webkit-details-marker { display: none; }
+details.q summary::after {
+  content: ""; width: 14px; height: 14px; margin-top: 5px;
+  background: linear-gradient(var(--gold), var(--gold)) center / 100% 2px no-repeat, linear-gradient(var(--gold), var(--gold)) center / 2px 100% no-repeat;
+  transition: transform .25s ease;
+}
+details.q[open] summary::after { transform: rotate(45deg); }
+details.q summary:hover { color: var(--accent); }
+.ans { display: grid; gap: 10px; padding-bottom: 20px; max-width: 68ch; font-size: 15.5px; }
+.ans ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; }
+.ans .kind { font-size: 12.5px; border-radius: 4px; padding: 1px 7px; justify-self: start; border: 1px solid currentColor; }
+.ans .kind.regle { color: var(--ok); }
+.ans .kind.reco { color: var(--gold-ink); }
+.ans .kind.mixte { color: var(--accent); }
+.ans .src { font-size: 13.5px; color: var(--muted); }
+
 /* Fonctionnement */
 .steps { position: relative; list-style: none; margin: 0; padding: 4px 0 4px 72px; display: grid; gap: 20px; max-width: 70ch; counter-reset: s; }
 .steps::before { content: ""; position: absolute; left: 6px; top: 0; bottom: 0; width: 30px; border-left: 2px solid var(--line); border-right: 2px solid var(--line); }
@@ -248,6 +276,7 @@ dialog[open] { animation: pop .22s ease-out; }
   .steps li { animation: rise .45s ease-out backwards; animation-delay: calc(var(--n, 0) * .14s + .2s); }
   .mlad .lit { stroke-dasharray: 1; animation: draw .3s ease-out backwards; animation-delay: var(--d); }
   .mlad .climber { animation: climbmini 1.3s ease-in-out backwards .1s; }
+  details.q[open] .ans { animation: rise .3s ease-out; }
 }
 @keyframes draw { from { stroke-dashoffset: 1; } }
 @keyframes fade { from { opacity: 0; } }
@@ -300,6 +329,7 @@ dialog[open] { animation: pop .22s ease-out; }
       <a href="#stages" data-view="stages">Trouver un stage</a>
       <a href="#relais" data-view="relais">Devenir relais</a>
       <a href="#accueillir" data-view="accueillir">Accueillir un élève</a>
+      <a href="#questions" data-view="questions">Questions</a>
       <a href="#fonctionnement" data-view="fonctionnement">Comment ça marche</a>
     </nav>
   </div>
@@ -451,7 +481,7 @@ dialog[open] { animation: pop .22s ease-out; }
   <!-- Cadre légal -->
   <section class="view" id="view-accueillir" aria-labelledby="h-acc" hidden>
     <h2 id="h-acc">Accueillir un élève : ce que dit la loi</h2>
-    <p class="lead">Un stage d'observation n'est ni un emploi ni un stage étudiant. L'élève reste un élève, sous la responsabilité de son établissement. Voici les règles qui figurent dans les conventions types des collèges et des lycées.</p>
+    <p class="lead">Un stage d'observation n'est ni un emploi ni un stage étudiant. L'élève reste un élève, sous la responsabilité de son établissement. Voici les règles qui figurent dans les conventions types des collèges et des lycées. Pour les cas précis (secret médical, audiences, laboratoires), voir les <a href="#questions" data-view="questions">questions fréquentes</a>.</p>
 
     <div class="legal">
       <section>
@@ -555,6 +585,21 @@ dialog[open] { animation: pop .22s ease-out; }
         <li><a href="https://clg-lamartine-houilles.ac-versailles.fr/wp-content/uploads/sites/240/2023/06/Convention-de-stage-3eme-pour-2025-2026.pdf" target="_blank" rel="noopener">Convention type, stage de 3e 2025-2026 (académie de Versailles)</a></li>
         <li><a href="https://sites.service-information-publique.fr/carnac/guide-professionnels/F1882.html" target="_blank" rel="noopener">Accueil d'un jeune de moins de 16 ans en entreprise (Service-Public)</a></li>
       </ul>
+    </div>
+  </section>
+
+  <!-- Questions -->
+  <section class="view" id="view-questions" aria-labelledby="h-faq" hidden>
+    <h2 id="h-faq">Questions fréquentes</h2>
+    <p class="lead">Secret médical, audiences, laboratoires, assurance, données des élèves : les questions que se posent les professionnels et les familles avant de s'engager. Chaque réponse indique si elle découle d'un texte ou d'une recommandation de Sullam.</p>
+    <div class="faq-tools">
+      <div class="field faq-search"><label for="faq-q">Chercher une question</label><input class="input" id="faq-q" type="search" placeholder="Ex. consultation, audience, photo, accident"></div>
+      <div class="faq-groups" role="group" aria-label="Thème" id="faq-groups"></div>
+    </div>
+    <div id="faq"></div>
+    <p class="hint" id="faq-empty" hidden>Aucune question ne correspond. Essayez un autre mot.</p>
+    <div class="sources">
+      <p>Ces réponses sont indicatives et ne remplacent pas un avis juridique. Elles doivent être relues par un juriste et par les services du rectorat avant la mise en ligne publique de Sullam. La convention signée par l'établissement et le règlement intérieur de la structure d'accueil priment toujours.</p>
     </div>
   </section>
 
@@ -852,8 +897,113 @@ dialog[open] { animation: pop .22s ease-out; }
   };
   todo.forEach(x => x.addEventListener("change", updTodo));
 
+  // Questions fréquentes
+  const SRC = {
+    cnom4: ["Code de déontologie médicale, art. 4 (Ordre des médecins)", "https://www.conseil-national.medecin.fr/code-deontologie/devoirs-generaux-medecins-art-2-31/article-4-secret-professionnel"],
+    cnom72: ["Code de déontologie médicale, art. 72 (Ordre des médecins)", "https://www.conseil-national.medecin.fr/code-deontologie/lexercice-profession-art-69-108/1-regles-communes-modes-dexercice-art-69-84-4"],
+    csp: ["Code de la santé publique, art. L. 1110-4 et L. 1111-4", ""],
+    justice: ["Juridictions pour mineurs (ministère de la Justice)", "https://www.justice.gouv.fr/justice-france/cours-tribunaux/lordre-judiciaire/juridictions-mineurs"],
+    cpp: ["Code de procédure pénale, art. 11", ""],
+    rin: ["Règlement intérieur national des avocats, art. 2 (CNB)", "https://cnb.avocat.fr/rin/titre-premier-des-principes"],
+    d4153: ["Code du travail, art. D. 4153-19", "https://code.travail.gouv.fr/code-du-travail/d4153-19"],
+    civ: ["Code civil, art. 9", ""],
+    cnil: ["CNIL, recommandation n° 4 sur les mineurs", "https://cnil.fr/fr/recommandation-4-rechercher-le-consentement-dun-parent-pour-les-mineurs-de-moins-de-15-ans"],
+    eduscol: ["Éduscol, séquence d'observation en 3e", "https://eduscol.education.gouv.fr/5226/sequence-d-observation-en-milieu-professionnel-pour-les-eleves-des-classes-de-troisieme"],
+    reunion: ["Convention type de séquence d'observation (académie de La Réunion)", "https://etab.ac-reunion.fr/clg-bory-de-saint-vincent/wp-content/uploads/sites/28/2025/12/Convention-sequence-dobservation-profesionnelle-2025-26.pdf"],
+    normandie: ["Convention type, stage de seconde (académie de Normandie)", "https://dumont-laplace.lycee.ac-normandie.fr/IMG/pdf/convention_sequence_observation_entreprise_stage_2gt_2025.pdf"],
+    versailles: ["Convention type, stage de 3e (académie de Versailles)", "https://clg-lamartine-houilles.ac-versailles.fr/wp-content/uploads/sites/240/2023/06/Convention-de-stage-3eme-pour-2025-2026.pdf"],
+    css: ["Code de la sécurité sociale, art. L. 412-8", ""]
+  };
+  const KIND = { regle: "Ce que disent les textes", reco: "Recommandation Sullam", mixte: "Texte et recommandation" };
+  const GROUPS = [
+    { id: "sante", label: "Santé et secret médical" },
+    { id: "justice", label: "Justice et droit" },
+    { id: "labo", label: "Laboratoires et entreprises" },
+    { id: "tous", label: "Pour toutes les structures" },
+    { id: "famille", label: "Élèves et parents" }
+  ];
+  const FAQ = [
+    { g:"sante", k:"mixte", q:"Un élève peut-il assister à une consultation ?", src:["cnom4","csp"],
+      a:`<p>Oui, si le patient est d'accord. Le secret médical s'impose à tous ceux qui interviennent dans le système de santé, et l'Ordre des médecins rappelle que les élèves présents lors d'un examen doivent respecter le secret de ce qu'ils ont vu et entendu.</p>
+         <p>Le Code de la santé publique exige le consentement préalable du patient pour un examen réalisé dans le cadre d'un enseignement clinique. Un élève de 3e n'examine personne, mais le même principe s'applique :</p>
+         <ul><li>présentez l'élève et demandez au patient, hors de sa présence, s'il accepte ;</li><li>en cas de refus, l'élève sort, sans discussion ;</li><li>évitez les consultations les plus intimes ou les plus lourdes (gynécologie, psychiatrie, annonce d'un diagnostic grave).</li></ul>` },
+    { g:"sante", k:"mixte", q:"Qui est responsable si l'élève répète ce qu'il a vu ?", src:["cnom72","reunion"],
+      a:`<p>Le médecin doit veiller à ce que les personnes qui l'assistent connaissent leurs obligations de secret et les respectent, et il répond des indiscrétions de son entourage. Certaines conventions précisent aussi que l'élève est soumis au secret professionnel.</p>
+         <p>Expliquez le secret à l'élève dès le premier jour, avec des exemples concrets : ne citer aucun nom, ne rien publier sur les réseaux sociaux, ne rien écrire dans son rapport de stage qui permette de reconnaître un patient.</p>` },
+    { g:"sante", k:"regle", q:"L'élève peut-il consulter un dossier médical ou le logiciel du service ?", src:["csp"],
+      a:`<p>Non. Les informations sur un patient ne se partagent qu'entre les membres de l'équipe qui le prennent en charge, et seulement pour ce qui est nécessaire à ses soins. L'élève ne fait pas partie de cette équipe : il n'a accès à aucun dossier, ni papier ni informatique, même en lecture.</p>` },
+    { g:"sante", k:"reco", q:"Un élève peut-il entrer au bloc opératoire ?", src:[],
+      a:`<p>Aucun des textes sur les stages d'observation ne traite du bloc opératoire. La décision revient donc à la direction de l'établissement et au responsable du bloc, selon le règlement intérieur ; beaucoup d'hôpitaux le refusent.</p>
+         <p>Si c'est accepté : accord du patient, tenue et règles d'hygiène du bloc, un adulte qui s'occupe uniquement de l'élève, et la possibilité de sortir à tout moment, car les malaises sont fréquents la première fois.</p>` },
+    { g:"sante", k:"mixte", q:"Un médecin libéral peut-il accueillir un élève dans son cabinet ?", src:["eduscol","normandie"],
+      a:`<p>Oui. Un cabinet libéral signe la convention comme n'importe quelle structure d'accueil. Prévenez votre assureur en responsabilité civile professionnelle : la convention demande que votre responsabilité envers l'élève soit couverte, au besoin par un avenant à votre contrat.</p>` },
+
+    { g:"justice", k:"regle", q:"Un élève peut-il assister à toutes les audiences ?", src:["justice"],
+      a:`<p>Il peut assister aux audiences publiques, comme tout citoyen. Il ne peut pas assister :</p>
+         <ul><li>aux audiences du juge des enfants et du tribunal pour enfants, ouvertes seulement à un public restreint (famille, éducateurs, victimes) ;</li><li>aux audiences tenues à huis clos ;</li><li>au délibéré des juges, qui est secret.</li></ul>
+         <p>Prévoyez une autre activité pour ces moments : visite du greffe, échange avec un magistrat ou un avocat, découverte d'une salle d'audience vide.</p>` },
+    { g:"justice", k:"regle", q:"Peut-il lire les pièces d'un dossier pénal ?", src:["cpp"],
+      a:`<p>Non. L'enquête et l'instruction sont secrètes, et seules les personnes qui concourent à la procédure y ont accès. L'élève peut en revanche travailler sur des dossiers anonymisés ou sur des affaires déjà jugées en audience publique, si le magistrat le juge utile.</p>` },
+    { g:"justice", k:"mixte", q:"Un avocat peut-il recevoir un client devant l'élève ?", src:["rin"],
+      a:`<p>Le secret professionnel de l'avocat couvre tout : les notes d'entretien, les pièces du dossier, et même le nom des clients et l'agenda. L'avocat doit le faire respecter par toute personne qui coopère avec lui, et il répond des violations commises. En pratique :</p>
+         <ul><li>demandez l'accord du client avant tout rendez-vous en présence de l'élève ;</li><li>faites signer un engagement de confidentialité simple à l'élève et à ses représentants légaux ;</li><li>privilégiez les audiences publiques, la recherche juridique et les échanges avec l'équipe.</li></ul>` },
+
+    { g:"labo", k:"regle", q:"Que peut voir un élève dans un laboratoire ?", src:["d4153","normandie"],
+      a:`<p>Il observe, il ne manipule rien. Le Code du travail interdit d'exposer les jeunes aux agents biologiques des groupes 3 et 4, ainsi qu'à d'autres risques (certains produits chimiques, rayonnements, machines dangereuses). La convention interdit en plus à l'élève toute manœuvre sur une machine.</p>
+         <p>Il peut suivre une expérience depuis une zone sans risque, assister aux réunions d'équipe, regarder l'analyse des données et poser ses questions.</p>` },
+    { g:"labo", k:"reco", q:"Peut-on lui montrer des résultats non publiés ou des projets confidentiels ?", src:[],
+      a:`<p>Aucune règle propre aux stages d'observation ne traite de ce cas. Montrez de préférence ce qui est déjà public ou sans enjeu. Si l'élève doit voir des éléments confidentiels, prévoyez un engagement de confidentialité signé aussi par ses représentants légaux, puisqu'il est mineur.</p>` },
+
+    { g:"tous", k:"regle", q:"Je suis salarié ou interne : puis-je accueillir un élève moi-même ?", src:["eduscol"],
+      a:`<p>Pas sans votre employeur. La convention est signée par le responsable de la structure d'accueil, l'établissement scolaire et les représentants légaux de l'élève. Parlez-en à votre direction ou à votre chef de service. En attendant, vous pouvez être relais-contact sur Sullam et transmettre les demandes.</p>` },
+    { g:"tous", k:"regle", q:"Combien de temps dure le stage, et à quel moment ?", src:["eduscol"],
+      a:`<p>En 3e : cinq jours, consécutifs ou non, pendant le temps scolaire et jamais pendant les vacances. En seconde générale et technologique : deux semaines en juin, aux dates nationales. Les horaires respectent les plafonds liés à l'âge, détaillés dans <a href="#accueillir" data-view="accueillir">Accueillir un élève</a>.</p>` },
+    { g:"tous", k:"regle", q:"Que se passe-t-il en cas d'accident ?", src:["css","reunion","normandie"],
+      a:`<p>L'élève bénéficie de la législation sur les accidents du travail. Prévenez immédiatement l'établissement scolaire.</p>
+         <p>La déclaration suit ce que prévoit la convention. Selon les académies, c'est la structure d'accueil qui déclare l'accident à la CPAM dans les 48 heures et en informe l'établissement, ou l'établissement qui s'en charge à partir de la déclaration que vous lui envoyez le jour même.</p>` },
+    { g:"tous", k:"regle", q:"Et si l'élève abîme du matériel ou blesse quelqu'un ?", src:["reunion","versailles"],
+      a:`<p>L'établissement scolaire assure la responsabilité civile de l'élève pour les dommages qu'il pourrait causer pendant le stage. Votre structure, de son côté, couvre sa propre responsabilité civile.</p>` },
+    { g:"tous", k:"mixte", q:"Peut-on prendre l'élève en photo ou parler de son stage sur les réseaux ?", src:["civ"],
+      a:`<p>Pas sans l'accord écrit de ses représentants légaux : l'image d'une personne relève de sa vie privée, et pour un mineur ce sont ses parents qui décident. Ne photographiez jamais l'élève avec des patients, des clients, des justiciables ou des documents de travail.</p>` },
+    { g:"tous", k:"reco", q:"Faut-il un extrait de casier judiciaire pour accueillir un élève ?", src:[],
+      a:`<p>Les textes sur les stages d'observation consultés pour Sullam ne l'exigent pas des tuteurs. La plateforme pourrait néanmoins le demander à ses relais, sous la forme du bulletin n° 3 du casier judiciaire, que chacun peut obtenir gratuitement en ligne pour lui-même. C'est une décision encore ouverte.</p>` },
+    { g:"tous", k:"regle", q:"L'élève peut-il faire son stage loin de chez lui, ou à l'étranger ?", src:["eduscol"],
+      a:`<p>Oui, avec l'accord du chef d'établissement. Un stage à l'étranger suppose en plus un suivi pédagogique prévu à l'avance.</p>` },
+
+    { g:"famille", k:"regle", q:"Mon enfant a moins de 15 ans : peut-il s'inscrire seul ?", src:["cnil"],
+      a:`<p>Non. Pour un service en ligne qui repose sur le consentement, la loi Informatique et Libertés demande l'accord d'un parent en même temps que celui de l'enfant de moins de 15 ans. Sullam fait donc valider l'inscription par un parent.</p>` },
+    { g:"famille", k:"reco", q:"Que voit le professionnel de mon enfant ?", src:[],
+      a:`<p>Tant que le stage n'est pas confirmé : son prénom, sa classe, son établissement et son message. Jamais son nom de famille, son adresse, son téléphone ni son adresse mail. L'adulte référent, parent ou professeur, reçoit une copie de chaque échange.</p>` },
+    { g:"famille", k:"mixte", q:"Qu'est-ce que mon enfant a le droit de raconter ?", src:["reunion"],
+      a:`<p>Ce qu'il a appris sur le métier, oui. Ce qu'il a appris sur les personnes, non. Certaines conventions précisent que l'élève est soumis au secret professionnel et doit rester discret sur les informations recueillies pendant son stage. Dans son rapport : aucun nom de patient, de client ou de justiciable, et aucune photo de document.</p>` },
+    { g:"famille", k:"regle", q:"Et s'il ne trouve pas de stage ?", src:["eduscol"],
+      a:`<p>En 3e, l'élève qui n'a pas de structure d'accueil est accueilli dans son établissement pendant la séquence. Les relais de Sullam servent justement à éviter cette situation dans les métiers où la famille n'a aucun contact.</p>` }
+  ];
+  const faqState = { g: "", q: "" };
+  const gWrap = $("#faq-groups");
+  gWrap.innerHTML = [{ id: "", label: "Tous les thèmes" }, ...GROUPS].map(g => `<button type="button" data-g="${g.id}" aria-pressed="${g.id === "" ? "true" : "false"}">${esc(g.label)}</button>`).join("");
+  gWrap.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    faqState.g = b.dataset.g;
+    gWrap.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderFaq();
+  });
+  $("#faq-q").addEventListener("input", e => { faqState.q = norm(e.target.value.trim()); renderFaq(); });
+  const srcHTML = keys => keys.length ? `<p class="src">Sources : ${keys.map(k => SRC[k][1] ? `<a href="${SRC[k][1]}" target="_blank" rel="noopener">${esc(SRC[k][0])}</a>` : esc(SRC[k][0])).join(" · ")}</p>` : "";
+  function renderFaq() {
+    const plain = h => h.replace(/<[^>]+>/g, " ");
+    const html = GROUPS.filter(g => !faqState.g || g.id === faqState.g).map(g => {
+      const items = FAQ.filter(f => f.g === g.id && (!faqState.q || norm(f.q + " " + plain(f.a)).includes(faqState.q)));
+      if (!items.length) return "";
+      return `<div class="faq-group"><h3>${esc(g.label)}</h3>${items.map(f => `<details class="q"${faqState.q ? " open" : ""}><summary>${esc(f.q)}</summary><div class="ans"><span class="kind ${f.k}">${KIND[f.k]}</span>${f.a}${srcHTML(f.src)}</div></details>`).join("")}</div>`;
+    }).join("");
+    $("#faq").innerHTML = html;
+    $("#faq-empty").hidden = !!html;
+  }
+  renderFaq();
+
   // Vues
-  const VIEWS = ["stages", "relais", "accueillir", "fonctionnement"];
+  const VIEWS = ["stages", "relais", "accueillir", "questions", "fonctionnement"];
   function show(v, scroll) {
     if (!VIEWS.includes(v)) v = "stages";
     VIEWS.forEach(x => { $("#view-" + x).hidden = x !== v; });

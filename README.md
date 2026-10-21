@@ -16,6 +16,7 @@ Des professionnels peuvent y aider de deux façons :
 - **Trouver un stage** : recherche et filtres par classe, domaine, région et type. Quand l'élève choisit un domaine, une fiche courte le présente. La demande se fait par un formulaire encadré, avec un adulte référent en copie et l'accord d'un parent.
 - **Devenir relais** : formulaire en deux modes, avec un justificatif professionnel, une charte de protection des élèves et un aperçu de la fiche pendant la saisie.
 - **Accueillir un élève** : le cadre légal de l'accueil, c'est-à-dire la convention, la durée et les horaires selon l'âge, les activités interdites, l'assurance et la conduite à tenir en cas d'accident. Une liste à cocher sert à préparer l'arrivée de l'élève.
+- **Questions** : 21 questions fréquentes, classées par thème (santé et secret médical, justice et droit, laboratoires, toutes structures, élèves et parents). Chaque réponse indique si elle vient d'un texte ou d'une recommandation de Sullam, et cite ses sources.
 - **Comment ça marche** : le parcours de l'élève, les règles de protection et le calendrier des stages.
 
 ## Voir le site
