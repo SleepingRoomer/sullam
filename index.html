@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sullam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Prototype : stages d'observation pour les élèves de 4e, 3e et seconde dans les métiers où ils n'ont pas de réseau.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Naskh+Arabic:wght@500&display=swap">
+<style>
+/* Mise en page : une colonne de 960px, listes à filets fins, une seule couleur d'accent pour les actions */
+:root {
+  --bg: #FFFFFF;
+  --ink: #15181D;
+  --muted: #5E6570;
+  --line: #E3E5E9;
+  --faint: #F5F6F8;
+  --accent: #1F43A0;
+  --accent-ink: #FFFFFF;
+  --ok: #1E6B45;
+  --warn: #8A5A00;
+  --err: #B3261E;
+  --sans: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --arabic: "Noto Naskh Arabic", "Geeza Pro", "Times New Roman", serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1115; --ink: #ECEEF1; --muted: #9CA3AE; --line: #272B32; --faint: #171A20;
+    --accent: #93AEF2; --accent-ink: #0F1115; --ok: #6FCF9D; --warn: #E9B864; --err: #FF9C92;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1115; --ink: #ECEEF1; --muted: #9CA3AE; --line: #272B32; --faint: #171A20;
+  --accent: #93AEF2; --accent-ink: #0F1115; --ok: #6FCF9D; --warn: #E9B864; --err: #FF9C92;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+h1, h2, h3 { font-weight: 600; line-height: 1.25; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.wrap { max-width: 960px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.small { font-size: 14px; }
+.muted { color: var(--muted); }
+
+.note { border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+.note .wrap { padding-block: 8px; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: baseline; gap: 8px 28px; padding-block: 14px; flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: baseline; gap: 8px; color: var(--ink); text-decoration: none; margin-right: auto; }
+.brand b { font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
+.brand span { font-family: var(--arabic); font-size: 17px; color: var(--muted); }
+nav.tabs { display: flex; gap: 4px 20px; flex-wrap: wrap; }
+nav.tabs a { color: var(--muted); text-decoration: none; font-size: 15px; padding-block: 2px; border-bottom: 1.5px solid transparent; }
+nav.tabs a:hover { color: var(--ink); }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+.intro { padding-block: 56px 40px; }
+.intro h1 { font-size: clamp(28px, 4.4vw, 40px); max-width: 22ch; }
+.intro p { margin-top: 16px; max-width: 60ch; color: var(--muted); font-size: 17px; }
+.intro .links { margin-top: 20px; display: flex; gap: 8px 24px; flex-wrap: wrap; font-size: 15.5px; }
+
+main { padding-block: 8px 80px; }
+.view { display: grid; gap: 28px; }
+.view > h2 { font-size: 24px; }
+.lead { max-width: 64ch; color: var(--muted); }
+
+/* Filtres */
+.filters { display: grid; gap: 12px; }
+.frow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field > label, .field > .label { font-size: 13.5px; color: var(--muted); }
+.input { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 9px 11px; }
+.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 1px var(--accent); }
+textarea.input { resize: vertical; min-height: 120px; }
+.count { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Fiche domaine */
+.domain { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; }
+.domain h3 { grid-column: 1 / -1; font-size: 18px; }
+.domain .k { font-size: 13.5px; color: var(--muted); margin-bottom: 2px; }
+.domain p { font-size: 15px; }
+
+/* Liste */
+.list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 15rem) auto; gap: 8px 28px; align-items: start; padding-block: 20px; border-bottom: 1px solid var(--line); }
+.row .kicker { font-size: 13.5px; color: var(--muted); }
+.row h3 { font-size: 17px; margin-top: 2px; }
+.row .sub { font-size: 15px; color: var(--muted); margin-top: 2px; }
+.row .meta { font-size: 14.5px; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.row .act { display: grid; justify-items: end; gap: 8px; }
+.verif { font-size: 13px; color: var(--ok); white-space: nowrap; }
+.verif.pending { color: var(--warn); }
+.empty { padding-block: 28px; color: var(--muted); border-bottom: 1px solid var(--line); }
+
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 8px 14px; font-size: 14.5px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.btn:hover { filter: brightness(1.08); }
+.btn.quiet { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; filter: none; }
+
+/* Relais */
+.choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.choice label { display: grid; gap: 4px; border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; cursor: pointer; }
+.choice label:has(input:checked) { border-color: var(--ink); }
+.choice label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice b { font-weight: 600; }
+.choice span { font-size: 14.5px; color: var(--muted); }
+.cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+form.form { display: grid; gap: 28px; min-width: 0; }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
+legend { font-weight: 600; font-size: 17px; padding: 0; margin-bottom: 4px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.hint { font-size: 13.5px; color: var(--muted); }
+.checks { display: grid; gap: 8px; }
+.checks label, .inline label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.inline { display: flex; gap: 8px 20px; flex-wrap: wrap; }
+.checks input, .inline input { accent-color: var(--accent); width: 16px; height: 16px; margin-top: 4px; flex: none; }
+.err { color: var(--err); font-size: 14px; }
+.ok { color: var(--ok); font-size: 14.5px; }
+aside.preview { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); display: grid; gap: 10px; min-width: 0; }
+aside.preview .list .row { grid-template-columns: minmax(0, 1fr); }
+aside.preview .row .act { justify-items: start; }
+
+/* Cadre légal */
+.legal { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.legal section { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: 8px 32px; padding-block: 22px; border-bottom: 1px solid var(--line); }
+.legal h3 { font-size: 16.5px; }
+.legal .body { display: grid; gap: 10px; max-width: 64ch; }
+.legal ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.tag { display: inline-block; font-size: 12.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; margin-left: 6px; vertical-align: 2px; font-weight: 400; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 13.5px; }
+tbody tr:last-child td { border-bottom: 0; }
+.progress { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sources { font-size: 14px; color: var(--muted); display: grid; gap: 6px; max-width: 72ch; }
+.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+/* Fonctionnement */
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 12px; max-width: 64ch; }
+.steps li::marker { color: var(--muted); }
+.steps b { font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
+.grid2 h3 { font-size: 17px; margin-bottom: 10px; }
+.grid2 ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.name { border-top: 1px solid var(--line); padding-top: 24px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; }
+.name .ar { font-family: var(--arabic); font-size: 44px; line-height: 1.3; }
+
+/* Dialogue */
+dialog { border: 1px solid var(--line); border-radius: 10px; padding: 0; width: min(540px, calc(100vw - 32px)); background: var(--bg); color: var(--ink); }
+dialog::backdrop { background: rgba(10, 12, 16, .5); }
+.dlg { padding: 24px; display: grid; gap: 18px; max-height: 86vh; overflow: auto; }
+.dlg-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+.dlg-head h2 { font-size: 19px; margin-top: 2px; }
+.x { border: 0; background: none; font-size: 22px; line-height: 1; cursor: pointer; color: var(--muted); padding: 2px 4px; }
+.safe { background: var(--faint); border-radius: 6px; padding: 12px 14px; font-size: 14.5px; }
+.actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+footer { border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+footer .wrap { padding-block: 20px; display: flex; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; }
+
+@media (max-width: 820px) {
+  .frow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row { grid-template-columns: minmax(0, 1fr) auto; }
+  .row .meta { grid-column: 1; }
+  .row .act { grid-column: 2; grid-row: 1 / span 2; }
+  .cols, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  aside.preview { position: static; }
+  .legal section { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .frow, .two, .choice, .domain { grid-template-columns: minmax(0, 1fr); }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .row .act { grid-column: 1; grid-row: auto; justify-items: start; }
+  .intro { padding-block: 36px 28px; }
+  .name { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="note"><div class="wrap">Prototype. Les offres, les relais et les structures affichés sont fictifs ; aucune demande n'est envoyée.</div></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#stages" data-view="stages"><b>Sullam</b><span lang="ar" dir="rtl">سُلَّم</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#stages" data-view="stages">Trouver un stage</a>
+      <a href="#relais" data-view="relais">Devenir relais</a>
+      <a href="#accueillir" data-view="accueillir">Accueillir un élève</a>
+      <a href="#fonctionnement" data-view="fonctionnement">Comment ça marche</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap intro">
+  <h1>Des stages d'observation dans les métiers où l'on ne connaît personne</h1>
+  <p>Médecine, droit, recherche, architecture… Des professionnels publient des stages pour les élèves de 4e, de 3e et de seconde, ou acceptent de servir de relais vers leur service, leur cabinet ou leur laboratoire.</p>
+  <div class="links">
+    <a href="#stages" data-view="stages">Chercher un stage</a>
+    <a href="#relais" data-view="relais">Aider un élève</a>
+    <a href="#accueillir" data-view="accueillir">Ce que dit la loi</a>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- Élèves -->
+  <section class="view" id="view-stages" aria-labelledby="h-stages">
+    <h2 id="h-stages">Trouver un stage</h2>
+    <div class="filters">
+      <div class="field">
+        <label for="f-q">Recherche</label>
+        <input class="input" id="f-q" type="search" placeholder="Un métier, une ville (ex. chirurgie, Lyon)">
+      </div>
+      <div class="frow">
+        <div class="field"><label for="f-classe">Ta classe</label>
+          <select class="input" id="f-classe"><option value="">Toutes</option><option>4e</option><option>3e</option><option>2de</option></select></div>
+        <div class="field"><label for="f-dom">Domaine</label><select class="input" id="f-dom"><option value="">Tous</option></select></div>
+        <div class="field"><label for="f-region">Région</label><select class="input" id="f-region"><option value="">Toute la France</option></select></div>
+        <div class="field"><label for="f-type">Type</label>
+          <select class="input" id="f-type"><option value="">Offres et relais</option><option value="offre">Offres de stage</option><option value="relais">Relais</option></select></div>
+      </div>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div id="domain" class="domain" hidden></div>
+    <ol class="list" id="results"></ol>
+  </section>
+
+  <!-- Relais -->
+  <section class="view" id="view-relais" aria-labelledby="h-relais" hidden>
+    <h2 id="h-relais">Devenir relais</h2>
+    <p class="lead">Beaucoup d'élèves ne savent pas à qui écrire pour voir un bloc opératoire, une audience ou un laboratoire. Vous pouvez leur ouvrir la porte de deux façons. Avant d'accueillir un élève, lisez <a href="#accueillir" data-view="accueillir">le cadre légal</a>.</p>
+
+    <div class="choice" role="radiogroup" aria-label="Type d'engagement">
+      <label><input type="radio" name="mode" value="offre" checked><b>Publier une offre de stage</b><span>Votre structure accueille un ou plusieurs élèves pour une période précise, avec un tuteur.</span></label>
+      <label><input type="radio" name="mode" value="relais"><b>Être relais-contact</b><span>Vous répondez aux questions d'élèves ou transmettez leur demande à votre service.</span></label>
+    </div>
+
+    <div class="cols">
+      <form class="form" id="relais-form" novalidate>
+        <fieldset>
+          <legend>Vous</legend>
+          <div class="two">
+            <div class="field"><label for="r-prenom">Prénom</label><input class="input" id="r-prenom" value="Nadia" autocomplete="given-name"></div>
+            <div class="field"><label for="r-nom">Nom</label><input class="input" id="r-nom" value="Benali" autocomplete="family-name"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="r-metier">Métier</label><input class="input" id="r-metier" value="Cardiologue"></div>
+            <div class="field"><label for="r-domaine">Domaine</label><select class="input" id="r-domaine"></select></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="r-ville">Ville</label><input class="input" id="r-ville" value="Toulouse"></div>
+            <div class="field"><label for="r-region">Région</label><select class="input" id="r-region"></select></div>
+          </div>
+          <div class="field"><label for="r-mail">Adresse mail professionnelle</label><input class="input" id="r-mail" type="email" value="n.benali@chu-exemple.fr" autocomplete="email"><span class="hint">Les élèves ne la voient jamais. Elle sert à vérifier votre identité et à vous prévenir des demandes.</span></div>
+          <div class="two">
+            <div class="field"><label for="r-justif">Justificatif professionnel</label>
+              <select class="input" id="r-justif">
+                <option value="RPPS">Numéro RPPS (santé)</option>
+                <option value="barreau">Inscription au barreau</option>
+                <option value="mail d'établissement">Adresse mail d'établissement</option>
+                <option value="attestation employeur">Attestation de l'employeur</option>
+              </select></div>
+            <div class="field"><label for="r-justif-n">Numéro ou référence</label><input class="input" id="r-justif-n" value="10101234567"></div>
+          </div>
+        </fieldset>
+
+        <fieldset id="fs-offre">
+          <legend>L'offre</legend>
+          <div class="field"><label for="o-titre">Ce que l'élève va voir</label><input class="input" id="o-titre" value="Consultations et examens en cardiologie"></div>
+          <div class="field"><label for="o-structure">Structure d'accueil</label><input class="input" id="o-structure" value="Service de cardiologie, centre hospitalier"></div>
+          <div class="field"><span class="label">Classes acceptées</span>
+            <div class="inline" id="o-classes">
+              <label><input type="checkbox" value="4e"> 4e</label>
+              <label><input type="checkbox" value="3e" checked> 3e</label>
+              <label><input type="checkbox" value="2de" checked> 2de</label>
+            </div></div>
+          <div class="two">
+            <div class="field"><label for="o-periode">Période</label><input class="input" id="o-periode" value="Février–juin"></div>
+            <div class="field"><label for="o-places">Places</label><input class="input" id="o-places" type="number" min="1" max="20" value="2"></div>
+          </div>
+        </fieldset>
+
+        <fieldset id="fs-relais" hidden>
+          <legend>Ce que vous proposez</legend>
+          <div class="checks" id="c-can">
+            <label><input type="checkbox" value="Répond à tes questions sur le métier" checked> Répondre aux questions d'un élève sur votre métier</label>
+            <label><input type="checkbox" value="Transmet ta demande à son service" checked> Transmettre sa demande de stage à votre service ou à votre direction</label>
+            <label><input type="checkbox" value="Peut t'accueillir une journée"> L'accueillir une journée sur votre lieu de travail</label>
+          </div>
+          <div class="field"><label for="c-max">Nombre de demandes par an</label><input class="input" id="c-max" type="number" min="1" max="30" value="5"><span class="hint">Une fois ce nombre atteint, votre fiche n'accepte plus de demandes jusqu'à l'année scolaire suivante.</span></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Charte de protection des élèves</legend>
+          <div class="checks" id="charter">
+            <label><input type="checkbox"> Je n'échange avec les élèves que par Sullam, avec leur adulte référent en copie.</label>
+            <label><input type="checkbox"> Je ne demande jamais de photo, de numéro de téléphone ni de compte de réseau social.</label>
+            <label><input type="checkbox"> J'accueille l'élève uniquement sur le lieu de travail, aux horaires prévus, avec une convention signée par son établissement.</label>
+          </div>
+        </fieldset>
+
+        <p class="err" id="r-err" hidden></p>
+        <div><button class="btn" type="submit">Envoyer pour vérification</button></div>
+      </form>
+
+      <aside class="preview" aria-label="Aperçu de la fiche">
+        <span class="hint">Aperçu de votre fiche</span>
+        <ol class="list" id="preview"></ol>
+        <p class="hint" id="r-status">La fiche apparaît dans la recherche une fois votre justificatif vérifié.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Cadre légal -->
+  <section class="view" id="view-accueillir" aria-labelledby="h-acc" hidden>
+    <h2 id="h-acc">Accueillir un élève : ce que dit la loi</h2>
+    <p class="lead">Un stage d'observation n'est ni un emploi ni un stage étudiant. L'élève reste un élève, sous la responsabilité de son établissement. Voici les règles qui figurent dans les conventions types des collèges et des lycées.</p>
+
+    <div class="legal">
+      <section>
+        <h3>La convention</h3>
+        <div class="body">
+          <p>Aucun élève ne peut être accueilli sans convention. Elle est signée par le chef d'établissement, par le responsable de votre structure, et par l'élève et ses représentants légaux.</p>
+          <p>Elle fixe les dates, les horaires, le nom du tuteur et ce que l'élève va observer. L'établissement vous l'envoie, en général sous forme dématérialisée pour les stages de seconde.</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Durée et horaires</h3>
+        <div class="body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col"></th><th scope="col">Moins de 15 ans</th><th scope="col">15 ans et plus</th></tr></thead>
+              <tbody>
+                <tr><td>Par jour</td><td>7 h au plus</td><td>7 h au plus</td></tr>
+                <tr><td>Par semaine</td><td>30 h au plus</td><td>35 h au plus</td></tr>
+                <tr><td>Pause</td><td colspan="2">30 minutes consécutives dès 4 h 30 de présence</td></tr>
+                <tr><td>Plage horaire</td><td colspan="2">Entre 6 h et 22 h, jamais la nuit</td></tr>
+                <tr><td>Repos</td><td colspan="2">14 h consécutives entre deux journées (moins de 16 ans) ; deux jours consécutifs par semaine</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Durée du stage : une semaine en 3e, deux semaines en juin pour la seconde générale et technologique. Les horaires sont convenus avec l'établissement et inscrits dans la convention.</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Ce que l'élève fait</h3>
+        <div class="body">
+          <p>L'élève observe. Il ne travaille pas pour la structure et ne remplace personne.</p>
+          <ul>
+            <li>Il peut mener de petites enquêtes, assister à des réunions, des essais ou des démonstrations, sous le contrôle d'un adulte de l'équipe.</li>
+            <li>Il ne touche ni aux machines, appareils ou produits interdits aux mineurs par le Code du travail (articles D. 4153-15 et suivants), ni aux autres machines de production.</li>
+            <li>Il ne fait pas non plus les « travaux légers » que le Code du travail autorise pour certains mineurs.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h3>Statut et argent</h3>
+        <div class="body">
+          <p>L'élève garde son statut scolaire et reste sous l'autorité de son chef d'établissement. Il n'est pas rémunéré, et les conventions types excluent aussi toute gratification. Les repas restent à la charge de la famille ; l'élève peut accéder à votre restaurant d'entreprise si votre règlement le permet.</p>
+          <p>Aucune visite médicale n'est demandée pour un stage d'observation.</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Assurance</h3>
+        <div class="body">
+          <p>Votre structure doit couvrir sa responsabilité civile envers l'élève, par une assurance spécifique ou par un avenant à votre contrat. La convention demande le nom de l'assureur et le numéro de police.</p>
+          <p>L'établissement assure de son côté l'élève pour les dommages qu'il pourrait causer. Si un membre de l'équipe transporte exceptionnellement l'élève, le véhicule doit être assuré pour les dommages corporels.</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Accident ou absence</h3>
+        <div class="body">
+          <ul>
+            <li>En cas d'accident sur place ou sur le trajet : prévenez l'établissement tout de suite et envoyez-lui la déclaration d'accident le jour même.</li>
+            <li>Signalez sans attendre toute absence ou toute difficulté au chef d'établissement.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h3>Hôpital, tribunal, laboratoire <span class="tag">Recommandations Sullam</span></h3>
+        <div class="body">
+          <p>Ces points ne viennent pas des conventions mais de la nature de ces lieux. Ils protègent les patients, les justiciables et l'élève.</p>
+          <ul>
+            <li>Santé : demandez l'accord du patient avant que l'élève assiste à une consultation ou à un soin, et rappelez à l'élève qu'il ne répète rien de ce qu'il voit ou entend.</li>
+            <li>Justice : l'élève peut suivre les audiences publiques ; prévoyez une autre activité pendant les audiences à huis clos et les délibérés.</li>
+            <li>Recherche : l'élève reste hors des zones à risque chimique, biologique ou radiologique, et n'y entre qu'en observateur si la convention et le responsable sécurité l'autorisent.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h3>Avant l'arrivée</h3>
+        <div class="body">
+          <div class="checks" id="todo">
+            <label><input type="checkbox"> La convention est signée par toutes les parties.</label>
+            <label><input type="checkbox"> L'attestation d'assurance responsabilité civile est transmise à l'établissement.</label>
+            <label><input type="checkbox"> Les horaires respectent les plafonds liés à l'âge de l'élève.</label>
+            <label><input type="checkbox"> Un tuteur est désigné et présent pendant toute la période.</label>
+            <label><input type="checkbox"> La liste des lieux, machines et produits interdits à l'élève est prête.</label>
+            <label><input type="checkbox"> Le contact de l'établissement est noté, pour un accident ou une absence.</label>
+            <label><input type="checkbox"> Le programme de la semaine est préparé avec l'équipe.</label>
+          </div>
+          <span class="progress" id="todo-count"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="sources">
+      <p>Résumé indicatif, établi d'après des conventions types d'établissements (2024-2026) et Service-Public. En cas de doute, la convention signée par l'établissement fait foi.</p>
+      <ul>
+        <li><a href="https://dumont-laplace.lycee.ac-normandie.fr/IMG/pdf/convention_sequence_observation_entreprise_stage_2gt_2025.pdf" target="_blank" rel="noopener">Convention type, stage de seconde GT 2025 (académie de Normandie)</a></li>
+        <li><a href="https://clg-lamartine-houilles.ac-versailles.fr/wp-content/uploads/sites/240/2023/06/Convention-de-stage-3eme-pour-2025-2026.pdf" target="_blank" rel="noopener">Convention type, stage de 3e 2025-2026 (académie de Versailles)</a></li>
+        <li><a href="https://sites.service-information-publique.fr/carnac/guide-professionnels/F1882.html" target="_blank" rel="noopener">Accueil d'un jeune de moins de 16 ans en entreprise (Service-Public)</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Fonctionnement -->
+  <section class="view" id="view-fonctionnement" aria-labelledby="h-fonc" hidden>
+    <h2 id="h-fonc">Comment ça marche</h2>
+    <ol class="steps">
+      <li><b>Tu choisis</b> une offre de stage ou un relais, dans un domaine qui t'intrigue.</li>
+      <li><b>Tu écris par Sullam.</b> Ton message part avec ton adulte référent en copie : un parent ou un professeur.</li>
+      <li><b>Le relais répond.</b> Il accepte, te propose une autre date ou transmet ta demande à un collègue.</li>
+      <li><b>La convention est signée</b> par ton établissement et la structure d'accueil.</li>
+      <li><b>Tu fais ton stage,</b> puis tu peux raconter ce que tu as vu aux élèves qui viennent après toi.</li>
+    </ol>
+
+    <div class="grid2">
+      <div>
+        <h3>Protection des élèves</h3>
+        <ul>
+          <li>Chaque relais est vérifié avant d'apparaître : RPPS, barreau, adresse mail d'établissement ou attestation de l'employeur.</li>
+          <li>Aucune coordonnée personnelle n'est affichée, ni celle des élèves ni celle des relais.</li>
+          <li>Tous les échanges passent par Sullam, avec l'adulte référent en copie.</li>
+          <li>Un parent valide l'inscription des élèves de moins de 15 ans.</li>
+          <li>Chaque fiche et chaque message peuvent être signalés.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Les stages concernés</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Classe</th><th scope="col">Durée</th><th scope="col">Quand</th></tr></thead>
+            <tbody>
+              <tr><td>4e</td><td>Variable</td><td>Selon les collèges</td></tr>
+              <tr><td>3e</td><td>1 semaine</td><td>Dates fixées par le collège</td></tr>
+              <tr><td>2de GT</td><td>2 semaines</td><td>Juin, dates nationales (15–26 juin en 2026)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="name">
+      <div class="ar" lang="ar" dir="rtl" aria-hidden="true">سُلَّم</div>
+      <div>
+        <h3>Pourquoi « Sullam »</h3>
+        <p class="muted" style="margin-top:6px;max-width:60ch">En arabe, <i>sullam</i> désigne l'échelle. Le nom reprend l'image de la courte échelle : les plus grands aident les plus jeunes à atteindre ce qui leur paraissait hors de portée.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>Sullam, prototype, octobre 2026</span><span>Tout stage se fait avec une convention signée par l'établissement scolaire.</span></div></footer>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form class="dlg" id="dlg-form" novalidate>
+    <div class="dlg-head">
+      <div><span class="hint" id="dlg-kind"></span><h2 id="dlg-title"></h2><p class="hint" id="dlg-sub"></p></div>
+      <button type="button" class="x" id="dlg-close" aria-label="Fermer">×</button>
+    </div>
+    <div id="dlg-body" style="display:grid;gap:14px">
+      <p class="safe">Ta demande passe par Sullam. Le relais ne voit ni ton adresse mail ni ton téléphone, et ton adulte référent reçoit une copie de chaque message.</p>
+      <div class="two">
+        <div class="field"><label for="d-prenom">Ton prénom</label><input class="input" id="d-prenom" value="Rayan" autocomplete="given-name"></div>
+        <div class="field"><label for="d-classe">Ta classe</label><select class="input" id="d-classe"><option>4e</option><option selected>3e</option><option>2de</option></select></div>
+      </div>
+      <div class="field"><label for="d-etab">Ton collège ou lycée</label><input class="input" id="d-etab" value="Collège Jean-Moulin, Roubaix"></div>
+      <div class="field"><label for="d-ref">Adresse mail de ton adulte référent</label><input class="input" id="d-ref" type="email" value="prof.principale@college-exemple.fr"><span class="hint">Un parent, ou ton professeur principal.</span></div>
+      <div class="field"><label for="d-msg">Ton message</label>
+        <textarea class="input" id="d-msg" maxlength="800">Bonjour, je suis en 3e et j'aimerais devenir médecin, mais je ne connais personne qui travaille à l'hôpital. Je voudrais voir comment se passe une journée dans un service et ce que font les différents soignants.</textarea>
+        <span class="hint">Dis ce qui t'attire dans ce métier et ce que tu aimerais voir. Pas besoin de lettre de motivation. <span id="d-len"></span></span></div>
+      <div class="checks"><label><input type="checkbox" id="d-parent"> Mon parent ou responsable légal est d'accord pour que j'envoie cette demande.</label></div>
+      <p class="err" id="d-err" hidden></p>
+    </div>
+    <div id="dlg-done" hidden style="display:grid;gap:10px">
+      <p class="ok">Demande prête à partir.</p>
+      <p>Dans la vraie plateforme, le relais la recevrait avec une copie pour ton adulte référent. S'il accepte, ton établissement prépare la convention de stage.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn quiet" id="dlg-cancel">Annuler</button>
+      <button type="submit" class="btn" id="dlg-send">Envoyer la demande</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  const DOMAINS = [
+    { id: "sante", label: "Médecine et santé",
+      what: "Médecins, sages-femmes, pharmaciens, infirmiers, kinésithérapeutes : des dizaines de métiers soignent à l'hôpital, en clinique ou en cabinet.",
+      see: "Les consultations, la visite du matin dans un service, la vie d'un bloc opératoire ou d'une maternité, le travail en équipe.",
+      study: "La plupart des études de santé commencent par un PASS ou une L.AS à l'université. Médecin : 9 à 12 ans d'études selon la spécialité." },
+    { id: "droit", label: "Droit et justice",
+      what: "Avocats, magistrats, greffiers, notaires, juristes : ils appliquent la loi, défendent, jugent ou conseillent.",
+      see: "Une audience au tribunal, la préparation d'un dossier, un rendez-vous avec un client, le travail d'un greffe.",
+      study: "Licence puis master de droit. Avocat : examen d'entrée à l'école d'avocats. Magistrat : concours de l'École nationale de la magistrature." },
+    { id: "recherche", label: "Recherche",
+      what: "Les chercheurs travaillent sur des questions que personne n'a encore résolues, en biologie, physique, histoire ou mathématiques.",
+      see: "Une expérience en laboratoire, une réunion d'équipe, l'analyse de données, un séminaire.",
+      study: "Master puis doctorat, soit en général 8 ans d'études après le bac." },
+    { id: "ing", label: "Ingénierie et industrie",
+      what: "Les ingénieurs conçoivent et font fonctionner des avions, des ponts, des réseaux électriques ou des logiciels.",
+      see: "Un bureau d'études, un atelier de fabrication, des essais sur un prototype.",
+      study: "Classe préparatoire puis école d'ingénieurs, ou école d'ingénieurs dès le bac. Diplôme d'ingénieur : 5 ans." },
+    { id: "medias", label: "Journalisme et médias",
+      what: "Journalistes, monteurs, photographes, présentateurs : ils enquêtent, vérifient et racontent l'actualité.",
+      see: "La conférence de rédaction du matin, un reportage, l'enregistrement d'une émission.",
+      study: "Souvent une licence puis une école de journalisme reconnue par la profession, sur concours." },
+    { id: "culture", label: "Culture et patrimoine",
+      what: "Conservateurs, restaurateurs, régisseurs, médiateurs : ils protègent les œuvres et les font découvrir.",
+      see: "Les réserves d'un musée, l'atelier de restauration, le montage d'une exposition.",
+      study: "Histoire de l'art à l'université, écoles spécialisées. Conservateur : concours de l'Institut national du patrimoine." },
+    { id: "inst", label: "Institutions publiques",
+      what: "Préfectures, mairies, ministères, assemblées : fonctionnaires et élus préparent et appliquent les décisions publiques.",
+      see: "Une réunion de service, la préparation d'un conseil municipal, l'accueil du public.",
+      study: "Science politique, droit ou économie, puis concours de la fonction publique (IRA, INSP…)." },
+    { id: "archi", label: "Architecture",
+      what: "Les architectes dessinent des bâtiments et suivent leur construction, du croquis au chantier.",
+      see: "Une agence au travail, des maquettes, une réunion de chantier.",
+      study: "École nationale supérieure d'architecture : 5 ans, plus une année pour exercer en son nom propre." },
+    { id: "fin", label: "Économie et finance",
+      what: "Économistes, analystes, auditeurs : ils étudient les chiffres d'une entreprise ou d'un pays pour aider à décider.",
+      see: "L'analyse d'un dossier de crédit, une note de conjoncture, une réunion d'équipe.",
+      study: "École de commerce ou université (économie, gestion), souvent jusqu'au master." }
+  ];
+  const DOM = Object.fromEntries(DOMAINS.map(d => [d.id, d]));
+  const REGIONS = ["Auvergne-Rhône-Alpes","Bretagne","Grand Est","Hauts-de-France","Île-de-France","Normandie","Nouvelle-Aquitaine","Occitanie","Pays de la Loire","Provence-Alpes-Côte d'Azur"];
+  const ALL = ["4e","3e","2de"];
+  const JUIN = "Juin, dates nationales de 2de";
+
+  const ITEMS = [
+    { t:"offre", d:"sante", title:"Une semaine dans un service de pédiatrie", who:"Centre hospitalier (fictif)", city:"Lille", region:"Hauts-de-France", classes:["3e"], when:"Semaine au choix, janvier–avril", places:2, tutor:"Dr Karim B., pédiatre", verif:"RPPS" },
+    { t:"offre", d:"sante", title:"Bloc opératoire et consultations de chirurgie orthopédique", who:"Clinique (fictive)", city:"Lyon", region:"Auvergne-Rhône-Alpes", classes:["2de"], when:JUIN, places:1, tutor:"Dr Hélène V., chirurgienne", verif:"RPPS" },
+    { t:"offre", d:"droit", title:"Suivre les audiences d'un tribunal judiciaire", who:"Tribunal judiciaire (fictif)", city:"Créteil", region:"Île-de-France", classes:["3e","2de"], when:"Novembre–mai", places:3, tutor:"Greffe du tribunal", verif:"mail d'établissement" },
+    { t:"offre", d:"droit", title:"Une semaine dans un cabinet d'avocats en droit des affaires", who:"Cabinet d'avocats (fictif)", city:"Nantes", region:"Pays de la Loire", classes:["2de"], when:JUIN, places:1, tutor:"Me Julien P., avocat", verif:"barreau" },
+    { t:"offre", d:"recherche", title:"Microscopes et cultures cellulaires dans un laboratoire de biologie", who:"Unité de recherche (fictive)", city:"Strasbourg", region:"Grand Est", classes:["2de"], when:JUIN, places:2, tutor:"Équipe Division cellulaire", verif:"mail d'établissement" },
+    { t:"offre", d:"recherche", title:"Observer le Soleil et traiter des images de télescope", who:"Observatoire (fictif)", city:"Toulouse", region:"Occitanie", classes:["3e","2de"], when:"Février–juin", places:2, tutor:"Dr Samir H., astrophysicien", verif:"mail d'établissement" },
+    { t:"offre", d:"ing", title:"Bureau d'études aéronautique : conception et essais", who:"Équipementier aéronautique (fictif)", city:"Bordeaux", region:"Nouvelle-Aquitaine", classes:["2de"], when:JUIN, places:2, tutor:"Service des essais", verif:"attestation employeur" },
+    { t:"offre", d:"medias", title:"La rédaction d'un quotidien régional, de la conférence du matin au bouclage", who:"Quotidien régional (fictif)", city:"Rennes", region:"Bretagne", classes:["3e"], when:"Janvier–mars", places:1, tutor:"Rédaction en chef", verif:"attestation employeur" },
+    { t:"offre", d:"culture", title:"Réserves et atelier de restauration d'un musée", who:"Musée (fictif)", city:"Marseille", region:"Provence-Alpes-Côte d'Azur", classes:["3e","2de"], when:"Décembre–juin", places:2, tutor:"Régie des œuvres", verif:"mail d'établissement" },
+    { t:"offre", d:"inst", title:"Préparer un conseil municipal avec les services de la mairie", who:"Mairie (fictive)", city:"Montpellier", region:"Occitanie", classes:["4e","3e"], when:"Janvier–avril", places:1, tutor:"Direction générale des services", verif:"mail d'établissement" },
+    { t:"offre", d:"archi", title:"Maquettes, plans et visite de chantier dans une agence d'architecture", who:"Agence d'architecture (fictive)", city:"Paris", region:"Île-de-France", classes:["3e","2de"], when:"Toute l'année", places:1, tutor:"Camille R., architecte", verif:"attestation employeur" },
+    { t:"offre", d:"fin", title:"Le service d'études économiques d'une banque", who:"Banque (fictive)", city:"Paris", region:"Île-de-France", classes:["2de"], when:JUIN, places:2, tutor:"Service des études", verif:"attestation employeur" },
+    { t:"relais", d:"sante", title:"Interne en anesthésie-réanimation", who:"Amina K.", city:"Marseille", region:"Provence-Alpes-Côte d'Azur", classes:ALL, can:["Répond à tes questions sur le métier","Transmet ta demande à son service"], used:2, max:6, verif:"RPPS" },
+    { t:"relais", d:"sante", title:"Sage-femme en maternité", who:"Inès R.", city:"Rouen", region:"Normandie", classes:ALL, can:["Transmet ta demande à son service"], used:1, max:4, verif:"RPPS" },
+    { t:"relais", d:"droit", title:"Magistrate du parquet", who:"Claire D.", city:"Lyon", region:"Auvergne-Rhône-Alpes", classes:ALL, can:["Répond à tes questions sur le métier","Transmet ta demande à son service"], used:2, max:4, verif:"mail d'établissement" },
+    { t:"relais", d:"recherche", title:"Doctorant en physique des matériaux", who:"Youssef T.", city:"Grenoble", region:"Auvergne-Rhône-Alpes", classes:ALL, can:["Répond à tes questions sur le métier","Peut t'accueillir une journée"], used:0, max:3, verif:"mail d'établissement" },
+    { t:"relais", d:"medias", title:"Journaliste radio", who:"Malik S.", city:"Paris", region:"Île-de-France", classes:ALL, can:["Répond à tes questions sur le métier","Peut t'accueillir une journée"], used:3, max:5, verif:"attestation employeur" },
+    { t:"relais", d:"ing", title:"Ingénieure en génie civil", who:"Léa F.", city:"Nantes", region:"Pays de la Loire", classes:ALL, can:["Transmet ta demande à son service"], used:1, max:5, verif:"attestation employeur" },
+    { t:"relais", d:"inst", title:"Attaché principal en préfecture", who:"Thomas G.", city:"Lille", region:"Hauts-de-France", classes:ALL, can:["Répond à tes questions sur le métier","Transmet ta demande à son service"], used:0, max:4, verif:"mail d'établissement" },
+    { t:"relais", d:"fin", title:"Analyste crédit", who:"Sarah N.", city:"Strasbourg", region:"Grand Est", classes:ALL, can:["Répond à tes questions sur le métier"], used:4, max:4, verif:"attestation employeur" }
+  ];
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const plural = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
+
+  const domOpts = DOMAINS.map(d => `<option value="${d.id}">${esc(d.label)}</option>`).join("");
+  const regOpts = REGIONS.map(r => `<option>${esc(r)}</option>`).join("");
+  $("#f-dom").insertAdjacentHTML("beforeend", domOpts);
+  $("#f-region").insertAdjacentHTML("beforeend", regOpts);
+  $("#r-domaine").innerHTML = domOpts; $("#r-domaine").value = "sante";
+  $("#r-region").innerHTML = regOpts; $("#r-region").value = "Occitanie";
+
+  function row(it, idx, preview) {
+    const d = DOM[it.d];
+    const verif = it.pending ? `<span class="verif pending">En attente de vérification</span>` : `<span class="verif">✓ Vérifié (${esc(it.verif)})</span>`;
+    if (it.t === "offre") {
+      return `<li class="row">
+        <div><div class="kicker">${esc(d.label)} · Offre de stage</div><h3>${esc(it.title)}</h3><p class="sub">${esc(it.who)}, ${esc(it.city)}</p></div>
+        <div class="meta"><span>${it.classes.length ? esc(it.classes.join(", ")) : "Aucune classe choisie"}</span><span>${esc(it.when)}</span><span>${plural(it.places, "place")} · tuteur : ${esc(it.tutor)}</span></div>
+        <div class="act">${verif}<button type="button" class="btn" data-ask="${idx}" ${preview ? "disabled" : ""}>Demander</button></div>
+      </li>`;
+    }
+    const left = it.max - it.used;
+    return `<li class="row">
+      <div><div class="kicker">${esc(d.label)} · Relais</div><h3>${esc(it.title)}</h3><p class="sub">${esc(it.who)}, ${esc(it.city)}</p></div>
+      <div class="meta">${it.can.length ? it.can.map(c => `<span>${esc(c)}</span>`).join("") : "<span>À préciser</span>"}<span class="muted">${left > 0 ? `${plural(left, "demande")} possible${left > 1 ? "s" : ""} cette année` : "Complet cette année"}</span></div>
+      <div class="act">${verif}<button type="button" class="btn ${left > 0 ? "" : "quiet"}" data-ask="${idx}" ${(preview || left <= 0) ? "disabled" : ""}>${left > 0 ? "Écrire" : "Complet"}</button></div>
+    </li>`;
+  }
+
+  function render() {
+    const f = { classe: $("#f-classe").value, dom: $("#f-dom").value, region: $("#f-region").value, type: $("#f-type").value, q: norm($("#f-q").value.trim()) };
+    const list = ITEMS.map((it, i) => [it, i]).filter(([it]) =>
+      (!f.classe || it.classes.includes(f.classe)) && (!f.dom || it.d === f.dom) &&
+      (!f.region || it.region === f.region) && (!f.type || it.t === f.type) &&
+      (!f.q || norm([it.title, it.who, it.city, it.region, DOM[it.d].label, (it.can || []).join(" ")].join(" ")).includes(f.q)));
+    const nO = list.filter(([it]) => it.t === "offre").length;
+    $("#count").textContent = `${plural(nO, "offre")} et ${list.length - nO} relais`;
+    $("#results").innerHTML = list.length ? list.map(([it, i]) => row(it, i)).join("")
+      : `<li class="empty">Rien pour ces critères. Essaie une autre région, ou regarde les relais : ils peuvent transmettre ta demande même sans offre publiée.</li>`;
+    const box = $("#domain");
+    if (f.dom) {
+      const d = DOM[f.dom];
+      box.innerHTML = `<h3>C'est quoi, ${esc(d.label.toLowerCase())} ?</h3>
+        <div><div class="k">Le domaine</div><p>${esc(d.what)}</p></div>
+        <div><div class="k">En stage, tu pourras voir</div><p>${esc(d.see)}</p></div>
+        <div><div class="k">Les études</div><p>${esc(d.study)}</p></div>`;
+      box.hidden = false;
+    } else { box.hidden = true; }
+  }
+  ["#f-q", "#f-classe", "#f-dom", "#f-region", "#f-type"].forEach(s => $(s).addEventListener("input", render));
+
+  // Demande d'un élève
+  const dlg = $("#dlg");
+  const updLen = () => { $("#d-len").textContent = `(${$("#d-msg").value.length}/800)`; };
+  $("#results").addEventListener("click", e => {
+    const b = e.target.closest("[data-ask]"); if (!b) return;
+    const it = ITEMS[+b.dataset.ask];
+    $("#dlg-kind").textContent = it.t === "offre" ? "Demande de stage" : "Message à un relais";
+    $("#dlg-title").textContent = it.title;
+    $("#dlg-sub").textContent = `${it.who}, ${it.city}`;
+    $("#dlg-body").hidden = false; $("#dlg-done").hidden = true;
+    $("#dlg-send").hidden = false; $("#dlg-cancel").textContent = "Annuler";
+    $("#d-err").hidden = true; $("#d-parent").checked = false;
+    updLen(); dlg.showModal();
+  });
+  const close = () => dlg.close();
+  $("#dlg-close").addEventListener("click", close);
+  $("#dlg-cancel").addEventListener("click", close);
+  dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
+  $("#d-msg").addEventListener("input", updLen);
+  const isMail = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim());
+  $("#dlg-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const err = [];
+    if (!$("#d-prenom").value.trim()) err.push("indique ton prénom");
+    if (!$("#d-etab").value.trim()) err.push("indique ton établissement");
+    if (!isMail($("#d-ref").value)) err.push("ajoute l'adresse mail d'un adulte référent");
+    if ($("#d-msg").value.trim().length < 40) err.push("écris quelques phrases dans ton message");
+    if (!$("#d-parent").checked) err.push("coche la case d'accord de ton parent");
+    if (err.length) { $("#d-err").textContent = "Pour envoyer, " + err.join(", ") + "."; $("#d-err").hidden = false; return; }
+    $("#dlg-body").hidden = true; $("#dlg-done").hidden = false;
+    $("#dlg-send").hidden = true; $("#dlg-cancel").textContent = "Fermer";
+  });
+
+  // Formulaire relais
+  const form = $("#relais-form");
+  const mode = () => document.querySelector('input[name="mode"]:checked').value;
+  const initial = (n) => n ? n[0].toUpperCase() + "." : "";
+  function draft() {
+    const prenom = $("#r-prenom").value.trim() || "Prénom", nom = $("#r-nom").value.trim();
+    const base = { d: $("#r-domaine").value, city: $("#r-ville").value.trim() || "Ville", verif: $("#r-justif").value, pending: true };
+    if (mode() === "offre") return Object.assign(base, { t: "offre",
+      title: $("#o-titre").value.trim() || "Ce que l'élève va voir", who: $("#o-structure").value.trim() || "Structure d'accueil",
+      classes: [...document.querySelectorAll("#o-classes input:checked")].map(x => x.value),
+      when: $("#o-periode").value.trim() || "Période", places: Math.max(1, +$("#o-places").value || 1),
+      tutor: `${prenom} ${initial(nom)}, ${($("#r-metier").value.trim() || "métier").toLowerCase()}` });
+    return Object.assign(base, { t: "relais", title: $("#r-metier").value.trim() || "Métier",
+      who: `${prenom} ${initial(nom)}`.trim(), classes: ALL,
+      can: [...document.querySelectorAll("#c-can input:checked")].map(x => x.value), used: 0, max: Math.max(1, +$("#c-max").value || 1) });
+  }
+  const preview = () => { $("#preview").innerHTML = row(draft(), -1, true); };
+  document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => {
+    $("#fs-offre").hidden = mode() !== "offre"; $("#fs-relais").hidden = mode() !== "relais";
+    $("#r-status").className = "hint"; $("#r-status").textContent = "La fiche apparaît dans la recherche une fois votre justificatif vérifié.";
+    preview();
+  }));
+  form.addEventListener("input", preview);
+  form.addEventListener("change", preview);
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const err = [];
+    if (!isMail($("#r-mail").value)) err.push("une adresse mail professionnelle valide");
+    if (!$("#r-justif-n").value.trim()) err.push("la référence de votre justificatif");
+    if (mode() === "offre" && !document.querySelector("#o-classes input:checked")) err.push("au moins une classe acceptée");
+    if (mode() === "relais" && !document.querySelector("#c-can input:checked")) err.push("au moins une chose que vous pouvez faire");
+    if ([...document.querySelectorAll("#charter input")].some(x => !x.checked)) err.push("l'acceptation des trois points de la charte");
+    if (err.length) { $("#r-err").textContent = "Il manque " + err.join(", ") + "."; $("#r-err").hidden = false; return; }
+    $("#r-err").hidden = true;
+    $("#r-status").className = "ok";
+    $("#r-status").textContent = "Fiche envoyée pour vérification. Dans la vraie plateforme, l'équipe contrôlerait votre justificatif avant de la publier.";
+  });
+
+  // Liste « avant l'arrivée »
+  const todo = [...document.querySelectorAll("#todo input")];
+  const updTodo = () => { $("#todo-count").textContent = `${todo.filter(x => x.checked).length} sur ${todo.length} vérifiés`; };
+  todo.forEach(x => x.addEventListener("change", updTodo));
+
+  // Vues
+  const VIEWS = ["stages", "relais", "accueillir", "fonctionnement"];
+  function show(v, scroll) {
+    if (!VIEWS.includes(v)) v = "stages";
+    VIEWS.forEach(x => { $("#view-" + x).hidden = x !== v; });
+    document.querySelectorAll("nav.tabs a").forEach(a => {
+      if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    if (scroll) $("main").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a[data-view]"); if (!a) return;
+    e.preventDefault();
+    try { history.replaceState(null, "", "#" + a.dataset.view); } catch (_) {}
+    show(a.dataset.view, true);
+  });
+
+  render(); preview(); updTodo();
+  show((location.hash || "").slice(1), false);
+})();
+</script>
+</body>
+</html>
